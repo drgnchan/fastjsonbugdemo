@@ -1,0 +1,57 @@
+name: test is just test
+
+# Controls when the action will run. Triggers the workflow on push or pull request
+# events but only for the dev branch
+on:
+  push:
+    branches: [ master ]
+
+# A workflow run is made up of one or more jobs that can run sequentially or in parallel
+jobs:
+  test:
+    name: test dev's script
+    # The type of runner that the job will run on
+    runs-on: ubuntu-latest
+
+    # Steps represent a sequence of tasks that will be executed as part of the job
+    steps:
+
+      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+      - name: checkout code
+        uses: actions/checkout@v2
+
+      # ensure the path and files of project
+      - name: ensure the path and files of project
+        run: sudo apt install tree; tree
+
+      - name: Setup Java JDK
+        uses: actions/setup-java@v1
+        with:
+          # The Java version to make available on the path. Takes a whole or semver Java version, or 1.x syntax (e.g. 1.8 => Java 8.x). Early access versions can be specified in the form of e.g. 14-ea, 14.0.0-ea, or 14.0.0-ea.28
+          java-version: 8
+      - name: Use java and javac
+        run: javac --version; java --version
+
+      - uses: actions/cache@v2
+        env:
+          cache-name: cache-maven-modules
+        with:
+          path: ~/.m2/repository
+          key: ${{ runner.os }}-build-${{ env.cache-name }}-maven-${{ hashFiles('**/pom.xml') }}
+          restore-keys: |
+            ${{ runner.os }}-build-${{ env.cache-name }}-
+            ${{ runner.os }}-build-
+            ${{ runner.os }}
+
+      - name: maven compile
+        run: mvn clean compile
+      - name: mvn run
+        run: mvn exec:java -Dexec.mainClass="Main"
+
+      - name: run script
+        working-directory: ./script
+        run: javac ./file_producer.java; java file_producer
+
+  # This workflow contains a single job called "build"
+
+
