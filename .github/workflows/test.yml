@@ -48,10 +48,6 @@ jobs:
       - name: mvn run
         run: mvn exec:java -Dexec.mainClass="Main"
 
-      - name: run script
-        working-directory: ./script
-        run: javac ./file_producer.java; java file_producer
-
   # This workflow contains a single job called "build"
 
 
